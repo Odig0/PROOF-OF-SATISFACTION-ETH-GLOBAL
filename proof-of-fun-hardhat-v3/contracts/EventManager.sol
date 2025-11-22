@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "./EventRewardToken.sol";
 
 /**
  * @title EventManager
@@ -33,6 +34,7 @@ contract EventManager is AccessControl, ReentrancyGuard, Pausable {
         uint256 totalVotes;
         bool requiresRegistration;
         bytes32 eventHash;
+        address rewardToken;  // Token de recompensa para este evento
     }
     
     enum EventStatus {
@@ -136,7 +138,9 @@ contract EventManager is AccessControl, ReentrancyGuard, Pausable {
         uint256 _votingStartTime,
         uint256 _votingEndTime,
         uint256 _maxParticipants,
-        bool _requiresRegistration
+        bool _requiresRegistration,
+        uint256 _attendanceReward,
+        uint256 _surveyReward
     ) external onlyRole(ORGANIZER_ROLE) whenNotPaused returns (uint256) {
         // Validate times
         require(_startTime > block.timestamp, "Start time must be in future");
@@ -160,6 +164,14 @@ contract EventManager is AccessControl, ReentrancyGuard, Pausable {
             _startTime,
             block.timestamp
         ));
+
+        // Crear token de recompensa para este evento
+        EventRewardToken rewardToken = new EventRewardToken(
+            _name,
+            eventId,
+            _attendanceReward,
+            _surveyReward
+        );
         
         events[eventId] = EventDetails({
             id: eventId,
@@ -177,7 +189,8 @@ contract EventManager is AccessControl, ReentrancyGuard, Pausable {
             currentParticipants: 0,
             totalVotes: 0,
             requiresRegistration: _requiresRegistration,
-            eventHash: eventHash
+            eventHash: eventHash,
+            rewardToken: address(rewardToken)
         });
         
         organizerEvents[msg.sender].push(eventId);
@@ -343,6 +356,12 @@ contract EventManager is AccessControl, ReentrancyGuard, Pausable {
                 participantEvents[_participant].push(_eventId);
             }
         }
+
+        // Otorgar tokens de recompensa por asistencia
+        if (eventData.rewardToken != address(0)) {
+            EventRewardToken rewardToken = EventRewardToken(eventData.rewardToken);
+            rewardToken.rewardAttendance(_participant);
+        }
         
         emit AttendanceMarked(_eventId, _participant);
     }
@@ -354,6 +373,11 @@ contract EventManager is AccessControl, ReentrancyGuard, Pausable {
     {
         EventDetails storage eventData = events[_eventId];
         require(eventData.status == EventStatus.Active, "Event not active");
+        
+        EventRewardToken rewardToken;
+        if (eventData.rewardToken != address(0)) {
+            rewardToken = EventRewardToken(eventData.rewardToken);
+        }
         
         for (uint256 i = 0; i < _participants.length; i++) {
             address participant = _participants[i];
@@ -370,6 +394,11 @@ contract EventManager is AccessControl, ReentrancyGuard, Pausable {
             
             if (!eventData.requiresRegistration) {
                 participantEvents[participant].push(_eventId);
+            }
+
+            // Otorgar tokens de recompensa por asistencia
+            if (address(rewardToken) != address(0)) {
+                rewardToken.rewardAttendance(participant);
             }
             
             emit AttendanceMarked(_eventId, participant);

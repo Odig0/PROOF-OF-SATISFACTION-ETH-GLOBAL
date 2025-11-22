@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import "./EventManager.sol";
+import "./EventRewardToken.sol";
 
 /**
  * @title ProofOfFun
@@ -56,6 +58,8 @@ contract ProofOfFun is Ownable, ReentrancyGuard, Pausable {
     uint256 public constant MAX_RATING = 5;
     uint256 public constant PRECISION = 100; // For average calculation
     
+    EventManager public eventManager; // Referencia al contrato de gestión de eventos
+    
     mapping(uint256 => Event) public events;
     mapping(uint256 => Category) public categories;
     mapping(bytes32 => VoteProof) public voteProofs;
@@ -96,6 +100,13 @@ contract ProofOfFun is Ownable, ReentrancyGuard, Pausable {
         _createCategory("Technology");
         _createCategory("Entertainment");
         _createCategory("Accessibility");
+    }
+
+    // ============ Configuration ============
+    
+    function setEventManager(address _eventManager) external onlyOwner {
+        require(_eventManager != address(0), "Invalid address");
+        eventManager = EventManager(_eventManager);
     }
     
     // ============ Category Management ============
@@ -343,6 +354,42 @@ contract ProofOfFun is Ownable, ReentrancyGuard, Pausable {
         }
         
         userVoteCount[msg.sender] += _categoryIds.length;
+
+        // Verificar si el usuario completó todas las categorías del evento
+        // y otorgar tokens de recompensa por completar la encuesta
+        bool hasCompletedSurvey = true;
+        for (uint256 i = 0; i < eventData.categoryIds.length; i++) {
+            if (!eventData.hasVotedCategory[msg.sender][eventData.categoryIds[i]]) {
+                hasCompletedSurvey = false;
+                break;
+            }
+        }
+
+        if (hasCompletedSurvey && address(eventManager) != address(0)) {
+            try eventManager.events(_eventId) returns (
+                uint256,
+                string memory,
+                string memory,
+                string memory,
+                string memory,
+                address,
+                uint256,
+                uint256,
+                uint256,
+                uint256,
+                EventManager.EventStatus,
+                uint256,
+                uint256,
+                uint256,
+                bool,
+                bytes32,
+                address rewardToken
+            ) {
+                if (rewardToken != address(0)) {
+                    EventRewardToken(rewardToken).rewardSurvey(msg.sender);
+                }
+            } catch {}
+        }
     }
     
     // ============ Results Calculation ============
