@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment Variables (CRÍTICO: NO SUBIR!)
+.env
+.env.local
+.env.production
+.env.*.local
+*.env
+
+# Private Keys (NUNCA subir!)
+*.key
+*.pem
+*.p12
+*.pfx
+private-keys/
+secrets/
+
+# TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Filecoin data (opcional, si los CIDs son sensibles)
+# *.cid
+# storage-data/

@@ -1,0 +1,35 @@
+{
+  "name": "proof-of-fun-filecoin",
+  "version": "1.0.0",
+  "description": "Proof of Fun - Filecoin Onchain Cloud Integration",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "check": "tsx src/examples/check-balance.ts",
+    "example:upload": "tsx src/examples/upload-event.ts",
+    "example:download": "tsx src/examples/download-data.ts",
+    "example:full": "tsx src/examples/full-workflow.ts"
+  },
+  "keywords": [
+    "filecoin",
+    "synapse",
+    "blockchain",
+    "storage",
+    "proof-of-fun"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@filoz/synapse-sdk": "^0.36.0",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.0"
+  }
+}

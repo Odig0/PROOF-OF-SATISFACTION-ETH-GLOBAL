@@ -1,5 +1,9 @@
 {
   "ProofOfFunModule#AnonymousVoteToken": "0x15609DAB9b0D838e60a16F8D604Cf34dCac39DE2",
   "ProofOfFunModule#EventManager": "0x1436E7E2A22a4eD28CB60f0C527e4EDaF03Ada98",
-  "ProofOfFunModule#ProofOfFun": "0xce006771FCD99FB8586228A05c08822f603df397"
+  "ProofOfFunModule#ProofOfFun": "0xce006771FCD99FB8586228A05c08822f603df397",
+  "ProofOfFunCompleteModule#AnonymousVoteToken": "0xCE48637ef4f6A010F83786d3DC2a80B26913cE01",
+  "ProofOfFunCompleteModule#EventManager": "0x45E2b22464cb62740f2B3319d6140888e1cDb9A0",
+  "ProofOfFunCompleteModule#MerchRedemption": "0x89dBb9B19F74f5fC5e329379fA34cEFC518b980c",
+  "ProofOfFunCompleteModule#ProofOfFun": "0x970fad202ADD7A19a3c377E0eCB4bbbDba9AAE49"
 }
